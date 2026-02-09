@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -87,8 +87,8 @@ model Price {
   id          Int       @id @default(autoincrement())
   priceListId Int
   productId   Int
-  basePrice   Float     // Store as float for SQLite
-  ivaPercent  Float     // Store as float for SQLite
+  basePrice   Decimal   @db.Decimal(10, 2)
+  ivaPercent  Decimal   @db.Decimal(5, 2)
   currency    String    @default("ARS")
   updatedAt   DateTime  @updatedAt
   priceList   PriceList @relation(fields: [priceListId], references: [id])

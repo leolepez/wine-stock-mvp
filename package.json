@@ -6,12 +6,16 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
+    "build": "npm run build:css && npx prisma generate",
+    "build:css": "npx tailwindcss -i src/styles/input.css -o public/css/output.css --minify",
+    "watch:css": "npx tailwindcss -i src/styles/input.css -o public/css/output.css --watch",
+    "postinstall": "npx prisma generate",
+    "deploy:migrate": "npx prisma migrate deploy",
+    "seed:prod": "NODE_ENV=production node prisma/seed.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "seed": "node prisma/seed.js",
-    "build:css": "postcss src/styles/input.css -o public/css/output.css",
-    "watch:css": "postcss src/styles/input.css -o public/css/output.css --watch"
+    "seed": "node prisma/seed.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
