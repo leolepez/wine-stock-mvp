@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión - Wine Stock MVP</title>
+  <link href="/css/output.css" rel="stylesheet">
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-indigo-800">
+  <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full">
+      <!-- Logo/Brand -->
+      <div class="text-center mb-8">
+        <div class="mx-auto h-16 w-16 bg-white rounded-full flex items-center justify-center shadow-lg mb-4">
+          <svg class="h-10 w-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+          </svg>
+        </div>
+        <h1 class="text-3xl font-bold text-white">Wine Stock</h1>
+        <p class="mt-2 text-indigo-200">Sistema de Gestión de Inventario</p>
+      </div>
+
+      <!-- Card -->
+      <div class="bg-white rounded-2xl shadow-2xl p-8">
+        <h2 class="text-xl font-semibold text-gray-900 text-center mb-6">
+          Iniciar Sesión
+        </h2>
+
+        <% if (error) { %>
+        <div class="rounded-lg bg-red-50 border border-red-200 p-4 mb-6">
+          <div class="flex items-center">
+            <svg class="h-5 w-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-sm text-red-700"><%= error %></span>
+          </div>
+        </div>
+        <% } %>
+
+        <form action="/auth/login" method="POST" class="space-y-5">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+                </svg>
+              </div>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                required
+                class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                placeholder="tu@email.com"
+              >
+            </div>
+          </div>
+
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+              Contraseña
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+              </div>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+                class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                placeholder="••••••••"
+              >
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition transform hover:scale-[1.02]"
+          >
+            Ingresar
+          </button>
+        </form>
+      </div>
+
+      <!-- Demo credentials -->
+      <div class="mt-6 bg-white/10 backdrop-blur-sm rounded-xl p-4">
+        <p class="text-xs text-center text-indigo-200 font-medium mb-2">Usuarios de demostración</p>
+        <div class="grid grid-cols-3 gap-2 text-xs text-center">
+          <div class="bg-white/10 rounded-lg p-2">
+            <p class="text-white font-medium">Admin</p>
+            <p class="text-indigo-300 text-[10px]">admin@wine.com</p>
+            <p class="text-indigo-300 text-[10px]">Admin123!</p>
+          </div>
+          <div class="bg-white/10 rounded-lg p-2">
+            <p class="text-white font-medium">Manager</p>
+            <p class="text-indigo-300 text-[10px]">manager@wine.com</p>
+            <p class="text-indigo-300 text-[10px]">Manager123!</p>
+          </div>
+          <div class="bg-white/10 rounded-lg p-2">
+            <p class="text-white font-medium">Viewer</p>
+            <p class="text-indigo-300 text-[10px]">viewer@wine.com</p>
+            <p class="text-indigo-300 text-[10px]">Viewer123!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <p class="mt-6 text-center text-xs text-indigo-300">
+        Wine Stock MVP &copy; 2026
+      </p>
+    </div>
+  </div>
+</body>
+</html>

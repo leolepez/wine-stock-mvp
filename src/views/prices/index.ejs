@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <title><%= title %> - Wine Stock MVP</title>
+  <link href="/css/output.css" rel="stylesheet">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.body.addEventListener('htmx:configRequest', function(evt) {
+        evt.detail.headers['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').content;
+      });
+    });
+  </script>
+</head>
+<body class="bg-gray-50">
+  <% if (user) { %>
+  <nav class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex space-x-8">
+          <a href="/products" class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-gray-900">Productos</a>
+          <a href="/prices" class="inline-flex items-center px-1 pt-1 border-b-2 border-indigo-500 text-gray-900 font-medium">Precios</a>
+        </div>
+        <div class="flex items-center">
+          <span class="text-sm text-gray-700 mr-4"><%= user.email %> (<%= user.role %>)</span>
+          <form action="/auth/logout" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="text-sm text-red-600 hover:text-red-800">Salir</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <% } %>
+
+  <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="sm:flex sm:items-center sm:justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-semibold text-gray-900">Listas de Precios</h1>
+        <p class="mt-1 text-sm text-gray-600">Gestión de precios por lista</p>
+      </div>
+      <% if (user && (user.role === 'ADMIN' || user.role === 'MANAGER')) { %>
+      <div class="mt-4 sm:mt-0">
+        <a href="/prices/new"
+           class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+          + Nueva Lista
+        </a>
+      </div>
+      <% } %>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <% priceLists.forEach(list => { %>
+      <div id="price-list-<%= list.id %>" class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900"><%= list.name %></h3>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= list.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+              <%= list.active ? 'Activa' : 'Inactiva' %>
+            </span>
+          </div>
+          <p class="mt-1 text-sm text-gray-500">
+            <%= list._count.prices %> productos con precio
+          </p>
+          <div class="mt-4 flex space-x-3">
+            <a href="/prices/<%= list.id %>"
+               class="text-sm text-indigo-600 hover:text-indigo-900">
+              Ver precios
+            </a>
+            <% if (user && (user.role === 'ADMIN' || user.role === 'MANAGER')) { %>
+            <a href="/prices/<%= list.id %>/edit"
+               class="text-sm text-indigo-600 hover:text-indigo-900">
+              Editar
+            </a>
+            <% } %>
+            <% if (user && user.role === 'ADMIN') { %>
+            <button hx-delete="/prices/<%= list.id %>"
+                    hx-target="#price-list-<%= list.id %>"
+                    hx-swap="outerHTML"
+                    hx-confirm="¿Eliminar esta lista de precios?"
+                    class="text-sm text-red-600 hover:text-red-900">
+              Eliminar
+            </button>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      <% }) %>
+
+      <% if (priceLists.length === 0) { %>
+      <div class="col-span-full text-center py-12">
+        <p class="text-gray-500">No hay listas de precios registradas</p>
+        <% if (user && (user.role === 'ADMIN' || user.role === 'MANAGER')) { %>
+        <a href="/prices/new" class="mt-2 inline-block text-indigo-600 hover:text-indigo-900">
+          Crear primera lista
+        </a>
+        <% } %>
+      </div>
+      <% } %>
+    </div>
+  </main>
+</body>
+</html>

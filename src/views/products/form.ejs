@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <title><%= title %> - Wine Stock MVP</title>
+  <link href="/css/output.css" rel="stylesheet">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body class="bg-gray-50">
+  <% if (user) { %>
+  <nav class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex space-x-8">
+          <a href="/products" class="inline-flex items-center px-1 pt-1 border-b-2 border-indigo-500 text-gray-900 font-medium">Productos</a>
+          <a href="/prices" class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-gray-900">Precios</a>
+        </div>
+        <div class="flex items-center">
+          <span class="text-sm text-gray-700 mr-4"><%= user.email %> (<%= user.role %>)</span>
+          <form action="/auth/logout" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="text-sm text-red-600 hover:text-red-800">Salir</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <% } %>
+
+  <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="mb-6">
+      <a href="/products" class="text-indigo-600 hover:text-indigo-900 text-sm">
+        &larr; Volver a productos
+      </a>
+    </div>
+
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-6"><%= title %></h2>
+
+        <% if (errors && errors.length > 0) { %>
+        <div class="rounded-md bg-red-50 p-4 mb-6">
+          <ul class="list-disc list-inside text-sm text-red-700">
+            <% errors.forEach(error => { %>
+            <li><%= error.msg %></li>
+            <% }) %>
+          </ul>
+        </div>
+        <% } %>
+
+        <form action="<%= product && product.id ? '/products/' + product.id : '/products' %>" method="POST" class="space-y-6">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <!-- SKU -->
+            <div>
+              <label for="sku" class="block text-sm font-medium text-gray-700">SKU *</label>
+              <input type="text"
+                     name="sku"
+                     id="sku"
+                     value="<%= product ? product.sku : '' %>"
+                     required
+                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border">
+            </div>
+
+            <!-- Name -->
+            <div>
+              <label for="name" class="block text-sm font-medium text-gray-700">Nombre *</label>
+              <input type="text"
+                     name="name"
+                     id="name"
+                     value="<%= product ? product.name : '' %>"
+                     required
+                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border">
+            </div>
+
+            <!-- Company -->
+            <div>
+              <label for="company" class="block text-sm font-medium text-gray-700">Bodega *</label>
+              <input type="text"
+                     name="company"
+                     id="company"
+                     value="<%= product ? product.company : '' %>"
+                     required
+                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border">
+            </div>
+
+            <!-- Presentation -->
+            <div>
+              <label for="presentation" class="block text-sm font-medium text-gray-700">Presentación *</label>
+              <input type="text"
+                     name="presentation"
+                     id="presentation"
+                     value="<%= product ? product.presentation : '750ml' %>"
+                     required
+                     placeholder="ej: 750ml"
+                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border">
+            </div>
+
+            <!-- Vintage -->
+            <div>
+              <label for="vintage" class="block text-sm font-medium text-gray-700">Cosecha</label>
+              <input type="text"
+                     name="vintage"
+                     id="vintage"
+                     value="<%= product ? product.vintage || '' : '' %>"
+                     placeholder="ej: 2020"
+                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border">
+            </div>
+
+            <!-- Varietal -->
+            <div>
+              <label for="varietal" class="block text-sm font-medium text-gray-700">Varietal</label>
+              <input type="text"
+                     name="varietal"
+                     id="varietal"
+                     value="<%= product ? product.varietal || '' : '' %>"
+                     placeholder="ej: Malbec"
+                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border">
+            </div>
+
+            <!-- Bottles per Box -->
+            <div>
+              <label for="bottlesPerBox" class="block text-sm font-medium text-gray-700">Botellas por Caja</label>
+              <input type="number"
+                     name="bottlesPerBox"
+                     id="bottlesPerBox"
+                     value="<%= product ? product.bottlesPerBox : 6 %>"
+                     min="1"
+                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border">
+            </div>
+
+            <!-- Image URL -->
+            <div>
+              <label for="imageUrl" class="block text-sm font-medium text-gray-700">URL de Imagen</label>
+              <input type="url"
+                     name="imageUrl"
+                     id="imageUrl"
+                     value="<%= product ? product.imageUrl || '' : '' %>"
+                     placeholder="https://..."
+                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border">
+            </div>
+          </div>
+
+          <div class="flex justify-end space-x-3">
+            <a href="/products"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              Cancelar
+            </a>
+            <button type="submit"
+                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+              <%= product && product.id ? 'Guardar Cambios' : 'Crear Producto' %>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

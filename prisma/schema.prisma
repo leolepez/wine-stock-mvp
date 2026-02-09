@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  email        String     @unique
+  passwordHash String
+  role         String     @default("VIEWER") // ADMIN, MANAGER, VIEWER
+  createdAt    DateTime   @default(now())
+  movements    Movement[]
+}
+
+model Warehouse {
+  id          Int          @id @default(autoincrement())
+  name        String
+  code        String       @unique
+  createdAt   DateTime     @default(now())
+  stockLevels StockLevel[]
+  movements   Movement[]
+}
+
+model Product {
+  id            Int          @id @default(autoincrement())
+  sku           String       @unique
+  name          String
+  company       String
+  presentation  String
+  vintage       String?
+  varietal      String?
+  imageUrl      String?
+  bottlesPerBox Int          @default(6)
+  createdAt     DateTime     @default(now())
+  stockLevels   StockLevel[]
+  movements     Movement[]
+  prices        Price[]
+}
+
+model StockLevel {
+  id          Int       @id @default(autoincrement())
+  warehouseId Int
+  productId   Int
+  quantity    Int       @default(0)
+  unit        String    // BOTTLE, BOX
+  updatedAt   DateTime  @updatedAt
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id])
+
+  @@unique([warehouseId, productId, unit])
+}
+
+model Movement {
+  id          Int       @id @default(autoincrement())
+  productId   Int
+  warehouseId Int
+  userId      Int
+  delta       Int
+  unit        String    // BOTTLE, BOX
+  reason      String
+  createdAt   DateTime  @default(now())
+  product     Product   @relation(fields: [productId], references: [id])
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@index([productId])
+  @@index([warehouseId])
+  @@index([createdAt])
+}
+
+model PriceList {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  prices    Price[]
+}
+
+model Price {
+  id          Int       @id @default(autoincrement())
+  priceListId Int
+  productId   Int
+  basePrice   Float     // Store as float for SQLite
+  ivaPercent  Float     // Store as float for SQLite
+  currency    String    @default("ARS")
+  updatedAt   DateTime  @updatedAt
+  priceList   PriceList @relation(fields: [priceListId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id])
+
+  @@unique([priceListId, productId])
+}

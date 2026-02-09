@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <title><%= title || 'Wine Stock MVP' %></title>
+  <link href="/css/output.css" rel="stylesheet">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body class="bg-gray-50">
+  <% if (user) { %>
+  <nav class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex space-x-8">
+          <a href="/products" class="inline-flex items-center px-1 pt-1 text-gray-900">Productos</a>
+          <a href="/prices" class="inline-flex items-center px-1 pt-1 text-gray-600">Precios</a>
+        </div>
+        <div class="flex items-center">
+          <span class="text-sm text-gray-700 mr-4"><%= user.email %> (<%= user.role %>)</span>
+          <form action="/auth/logout" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="text-sm text-red-600 hover:text-red-800">Salir</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <% } %>
+
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <%- body %>
+  </main>
+</body>
+</html>

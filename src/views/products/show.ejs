@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <title><%= title %> - Wine Stock MVP</title>
+  <link href="/css/output.css" rel="stylesheet">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body class="bg-gray-50">
+  <% if (user) { %>
+  <nav class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex space-x-8">
+          <a href="/products" class="inline-flex items-center px-1 pt-1 border-b-2 border-indigo-500 text-gray-900 font-medium">Productos</a>
+          <a href="/prices" class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-gray-900">Precios</a>
+        </div>
+        <div class="flex items-center">
+          <span class="text-sm text-gray-700 mr-4"><%= user.email %> (<%= user.role %>)</span>
+          <form action="/auth/logout" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="text-sm text-red-600 hover:text-red-800">Salir</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <% } %>
+
+  <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="mb-6">
+      <a href="/products" class="text-indigo-600 hover:text-indigo-900 text-sm">
+        &larr; Volver a productos
+      </a>
+    </div>
+
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900"><%= product.name %></h1>
+            <p class="text-sm text-gray-500 mt-1">SKU: <%= product.sku %></p>
+          </div>
+          <% if (user && (user.role === 'ADMIN' || user.role === 'MANAGER')) { %>
+          <a href="/products/<%= product.id %>/edit"
+             class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+            Editar
+          </a>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Product Details -->
+      <div class="px-6 py-4">
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Bodega</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= product.company %></dd>
+          </div>
+
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Presentación</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= product.presentation %></dd>
+          </div>
+
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Varietal</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= product.varietal || '-' %></dd>
+          </div>
+
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Cosecha</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= product.vintage || '-' %></dd>
+          </div>
+
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Botellas por Caja</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= product.bottlesPerBox %></dd>
+          </div>
+
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Fecha de Creación</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= new Date(product.createdAt).toLocaleDateString('es-AR') %></dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Stock Levels -->
+      <div class="px-6 py-4 border-t border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Stock por Depósito</h3>
+        <% if (product.stockLevels && product.stockLevels.length > 0) { %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Depósito</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Cantidad</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Unidad</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Última Actualización</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% product.stockLevels.forEach(sl => { %>
+            <tr>
+              <td class="px-4 py-2 text-sm text-gray-900"><%= sl.warehouse.name %> (<%= sl.warehouse.code %>)</td>
+              <td class="px-4 py-2 text-sm text-gray-900"><%= sl.quantity %></td>
+              <td class="px-4 py-2 text-sm text-gray-500"><%= sl.unit === 'BOTTLE' ? 'Botellas' : 'Cajas' %></td>
+              <td class="px-4 py-2 text-sm text-gray-500"><%= new Date(sl.updatedAt).toLocaleString('es-AR') %></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+        <% } else { %>
+        <p class="text-sm text-gray-500">No hay stock registrado</p>
+        <% } %>
+      </div>
+
+      <!-- Prices -->
+      <div class="px-6 py-4 border-t border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Precios por Lista</h3>
+        <% if (product.prices && product.prices.length > 0) { %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Lista</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Precio Base</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">IVA</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Precio Final</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% product.prices.forEach(price => {
+              const finalPrice = parseFloat(price.basePrice) * (1 + parseFloat(price.ivaPercent) / 100);
+            %>
+            <tr>
+              <td class="px-4 py-2 text-sm text-gray-900">
+                <%= price.priceList.name %>
+                <% if (!price.priceList.active) { %>
+                <span class="text-xs text-red-500">(inactiva)</span>
+                <% } %>
+              </td>
+              <td class="px-4 py-2 text-sm text-gray-900"><%= price.currency %> <%= parseFloat(price.basePrice).toLocaleString('es-AR', { minimumFractionDigits: 2 }) %></td>
+              <td class="px-4 py-2 text-sm text-gray-500"><%= price.ivaPercent %>%</td>
+              <td class="px-4 py-2 text-sm font-medium text-gray-900"><%= price.currency %> <%= finalPrice.toLocaleString('es-AR', { minimumFractionDigits: 2 }) %></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+        <% } else { %>
+        <p class="text-sm text-gray-500">No hay precios registrados</p>
+        <% } %>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

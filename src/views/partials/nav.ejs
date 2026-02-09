@@ -1,0 +1,31 @@
+<% if (user) { %>
+<nav class="bg-white shadow-sm border-b">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex space-x-8">
+        <a href="/products" class="inline-flex items-center px-1 pt-1 <%= active === 'products' ? 'border-b-2 border-indigo-500 text-gray-900 font-medium' : 'text-gray-600 hover:text-gray-900' %>">
+          Productos
+        </a>
+        <a href="/stock" class="inline-flex items-center px-1 pt-1 <%= active === 'stock' ? 'border-b-2 border-indigo-500 text-gray-900 font-medium' : 'text-gray-600 hover:text-gray-900' %>">
+          Stock
+        </a>
+        <a href="/prices" class="inline-flex items-center px-1 pt-1 <%= active === 'prices' ? 'border-b-2 border-indigo-500 text-gray-900 font-medium' : 'text-gray-600 hover:text-gray-900' %>">
+          Precios
+        </a>
+        <% if (user.role === 'ADMIN' || user.role === 'MANAGER') { %>
+        <a href="/import" class="inline-flex items-center px-1 pt-1 <%= active === 'import' ? 'border-b-2 border-indigo-500 text-gray-900 font-medium' : 'text-gray-600 hover:text-gray-900' %>">
+          Importar
+        </a>
+        <% } %>
+      </div>
+      <div class="flex items-center">
+        <span class="text-sm text-gray-700 mr-4"><%= user.email %> (<%= user.role %>)</span>
+        <form action="/auth/logout" method="POST">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="text-sm text-red-600 hover:text-red-800">Salir</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</nav>
+<% } %>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <title><%= title %> - Wine Stock MVP</title>
+  <link href="/css/output.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+  <%- include('../partials/nav', { active: 'import' }) %>
+
+  <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="mb-6">
+      <h1 class="text-2xl font-semibold text-gray-900">Importar Datos</h1>
+      <p class="mt-1 text-sm text-gray-600">Carga masiva de productos, precios y stock desde archivos CSV</p>
+    </div>
+
+    <% if (result) { %>
+    <div class="mb-6 rounded-md <%= result.errors.length === 0 ? 'bg-green-50' : 'bg-yellow-50' %> p-4">
+      <div class="flex">
+        <div class="ml-3">
+          <h3 class="text-sm font-medium <%= result.errors.length === 0 ? 'text-green-800' : 'text-yellow-800' %>">
+            Importación de <%= result.type %> completada
+          </h3>
+          <div class="mt-2 text-sm <%= result.errors.length === 0 ? 'text-green-700' : 'text-yellow-700' %>">
+            <p><%= result.success %> registro(s) procesado(s) correctamente</p>
+            <% if (result.errors.length > 0) { %>
+            <p class="mt-1"><%= result.errors.length %> error(es):</p>
+            <ul class="list-disc list-inside mt-1">
+              <% result.errors.slice(0, 5).forEach(err => { %>
+              <li class="text-xs"><%= err.error %></li>
+              <% }) %>
+              <% if (result.errors.length > 5) { %>
+              <li class="text-xs">... y <%= result.errors.length - 5 %> más</li>
+              <% } %>
+            </ul>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <% } %>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <!-- Products Import -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Productos</h3>
+          <p class="text-sm text-gray-500 mb-4">Importar o actualizar productos</p>
+
+          <form action="/import/products" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Archivo CSV</label>
+              <input type="file"
+                     name="file"
+                     accept=".csv"
+                     required
+                     class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+            </div>
+
+            <div class="flex justify-between items-center">
+              <a href="/import/template/products" class="text-sm text-indigo-600 hover:text-indigo-900">
+                Descargar plantilla
+              </a>
+              <button type="submit"
+                      class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                Importar
+              </button>
+            </div>
+          </form>
+
+          <div class="mt-4 pt-4 border-t border-gray-200">
+            <p class="text-xs text-gray-500">Columnas requeridas:</p>
+            <code class="text-xs text-gray-600">sku, name, company, presentation</code>
+            <p class="text-xs text-gray-500 mt-1">Opcionales:</p>
+            <code class="text-xs text-gray-600">vintage, varietal, bottlesPerBox</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prices Import -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Precios</h3>
+          <p class="text-sm text-gray-500 mb-4">Importar precios a una lista</p>
+
+          <form action="/import/prices" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Lista de Precios</label>
+              <select name="priceListId" required
+                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border">
+                <option value="">Seleccionar...</option>
+                <% priceLists.forEach(pl => { %>
+                <option value="<%= pl.id %>"><%= pl.name %></option>
+                <% }) %>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Archivo CSV</label>
+              <input type="file"
+                     name="file"
+                     accept=".csv"
+                     required
+                     class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+            </div>
+
+            <div class="flex justify-between items-center">
+              <a href="/import/template/prices" class="text-sm text-indigo-600 hover:text-indigo-900">
+                Descargar plantilla
+              </a>
+              <button type="submit"
+                      class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                Importar
+              </button>
+            </div>
+          </form>
+
+          <div class="mt-4 pt-4 border-t border-gray-200">
+            <p class="text-xs text-gray-500">Columnas requeridas:</p>
+            <code class="text-xs text-gray-600">sku, basePrice</code>
+            <p class="text-xs text-gray-500 mt-1">Opcionales:</p>
+            <code class="text-xs text-gray-600">ivaPercent (def: 21), currency (def: ARS)</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stock Import -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Stock</h3>
+          <p class="text-sm text-gray-500 mb-4">Importar niveles de stock</p>
+
+          <form action="/import/stock" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Archivo CSV</label>
+              <input type="file"
+                     name="file"
+                     accept=".csv"
+                     required
+                     class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+            </div>
+
+            <div class="flex justify-between items-center">
+              <a href="/import/template/stock" class="text-sm text-indigo-600 hover:text-indigo-900">
+                Descargar plantilla
+              </a>
+              <button type="submit"
+                      class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                Importar
+              </button>
+            </div>
+          </form>
+
+          <div class="mt-4 pt-4 border-t border-gray-200">
+            <p class="text-xs text-gray-500">Columnas requeridas:</p>
+            <code class="text-xs text-gray-600">sku, warehouseCode, quantity</code>
+            <p class="text-xs text-gray-500 mt-1">Códigos de depósito:</p>
+            <code class="text-xs text-gray-600">DC01, DS01</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
